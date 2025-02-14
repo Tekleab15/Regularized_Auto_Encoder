@@ -1,2 +1,2 @@
-# Variational_Auto_Encoder
-Variational Auto Encoders using backpropagation
+# Regularized_Auto_Encoder
+Regularized Auto Encoders using backpropagation
