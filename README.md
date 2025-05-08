@@ -1,71 +1,84 @@
-# RAE-Project
-Implementation of a Regularized Autoencoder based on Backpropagation
+# Regularized Autoencoder (RAE) Using MNIST
 
-## Project Description
-This project implements a Regularized Autoencoder (RAE) using backpropagation, inspired by the methodologies described in "The Neural Coding Framework for Learning Generative Models".
+This repository provides an implementation of a Regularized Autoencoder (RAE) based on the methodology described in the paper:
 
-# Regularized Autoencoder Implementation
+**"THE NEURAL CODING FRAMEWORK FOR LEARNING GENERATIVE MODELS"**  
+*(Alexander Ororbia, Daniel Kifer)*
 
-## Overview
-This repository contains the implementation of a Regularized Autoencoder (RAE) based on the methodology outlined in the research paper. The project includes training and evaluation of the RAE on multiple datasets, including MNIST, KMNIST, FMNIST, and CalTech101. The model's performance is evaluated using various metrics: Binary Cross-Entropy (BCE), Masked Mean Squared Error (M-MSE), log-likelihood, and classification error.
+The RAE is trained on the MNIST dataset and evaluated using several metrics including:
+- Binary Cross-Entropy (BCE) per sample
+- Masked Mean Squared Error (M-MSE) for pattern completion
+- Log-Likelihood (using a Gaussian Mixture Model in the latent space)
+- Classification Error (via a simple Logistic Regression on the latent representations)
 
-## Datasets
-- **MNIST**: Handwritten digits.
-- **KMNIST**: Japanese Kanji characters.
-- **FMNIST**: Fashion items.
-- **CalTech101**: 101 object categories plus background.
+---
 
-## Preprocessing
-- **Normalization**: Pixel values are normalized to [0, 1].
-- **Thresholding**: Images are converted to binary using a threshold of 0.5.
-- **Resizing**: CalTech101 images are resized to 16x16 pixels.
+## Table of Contents
+
+- [Project Overview](#project-overview)
+- [Model Architecture](#model-architecture)
+  - [Encoder](#encoder)
+  - [Decoder](#decoder)
+- [Installation and Requirements](#installation-and-requirements)
+- [Usage](#usage)
+  - [Training the RAE](#training-the-rae)
+  - [Evaluating the Model](#evaluating-the-model)
+- [Project Structure](#project-structure)
+- [Future Work](#future-work)
+- [License](#license)
+- [Acknowledgements](#acknowledgements)
+
+---
+
+## Project Overview
+
+This project implements a Regularized Autoencoder (RAE) that follows the specifications from the paper _"THE NEURAL CODING FRAMEWORK FOR LEARNING GENERATIVE MODELS"_. The autoencoder is designed as follows:
+
+- **Dataset:** MNIST, with images preprocessed to be binary ([0, 1]) and flattened to 784-dimensional vectors.
+- **Architecture:**
+  - **Encoder:** Two hidden layers with 360 neurons each using ReLU activations, Batch Normalization, and Dropout (0.2). The latent space is 20-dimensional with a sigmoid activation on the final layer.
+  - **Decoder:** A symmetric network to the encoder that reconstructs the input from the 20-dimensional latent code. The final layer uses a sigmoid activation to produce outputs in the [0,1] range, and an L2 regularization is applied.
+- **Optimizer:** Stochastic Gradient Descent (SGD) with momentum, using an exponentially decaying learning rate and gradient clipping.
+- **Evaluation:** In addition to reconstruction loss (BCE), the latent representations are used to:
+  - Fit a Gaussian Mixture Model (GMM) for estimating log-likelihood.
+  - Train a Logistic Regression classifier to calculate the classification error.
+  - Compute a (planned) masked MSE metric for pattern completion tasks.
+
+---
 
 ## Model Architecture
-The Regularized Autoencoder consists of an encoder and a decoder with the following structure:
-- **Encoder**:
-  - Flatten layer
-  - Dense layer with 256 units, ReLU activation, L2 regularization
-  - Dense layer with 128 units, ReLU activation, L2 regularization
-  - Dense layer with 20 units (latent space), ReLU activation, L2 regularization
-- **Decoder**:
-  - Dense layer with 128 units, ReLU activation, L2 regularization
-  - Dense layer with 256 units, ReLU activation, L2 regularization
-  - Dense output layer, Sigmoid activation, L2 regularization, reshape to original dimensions
 
-## Training
-- **Optimizer**: Adam
-- **Loss Function**: Binary Cross-Entropy
-- **Epochs**: 50
-- **Batch Size**: 200
+### Encoder
 
-## Results
-### MNIST
-- **Binary Cross-Entropy (BCE)**: 0.0659
-- **Masked Mean Squared Error (M-MSE)**: 0.0093
-- **Classification Error**: 0.0999
-- **Log-Likelihood**: (To be calculated)
+- **Input:** 784-dimensional vector (flattened MNIST image)
+- **Hidden Layers:** Two Dense layers with 360 neurons each:
+  - Activation: ReLU
+  - Additional Processing: Batch Normalization and Dropout (0.2)
+- **Latent Layer:** Dense layer with 20 neurons and sigmoid activation
 
-### KMNIST
-- **Binary Cross-Entropy (BCE)**: (To be updated)
-- **Masked Mean Squared Error (M-MSE)**: (To be updated)
-- **Classification Error**: (To be updated)
-- **Log-Likelihood**: (To be calculated)
+### Decoder
 
-### FMNIST
-- **Binary Cross-Entropy (BCE)**: (To be updated)
-- **Masked Mean Squared Error (M-MSE)**: (To be updated)
-- **Classification Error**: (To be updated)
-- **Log-Likelihood**: (To be calculated)
+- **Input:** 20-dimensional latent vector
+- **Hidden Layers:** Two Dense layers with 360 neurons each (mirroring the encoder):
+  - Activation: ReLU
+  - Regularization: L2 regularization (applied on at least one layer)
+  - Additional Processing: Batch Normalization and Dropout (0.2)
+- **Output Layer:** Dense layer with 784 neurons, sigmoid activation, then reshaped to (784,)
 
-### CalTech101
-- **Binary Cross-Entropy (BCE)**: 0.366
-- **Masked Mean Squared Error (M-MSE)**: 0.057
-- **Classification Error**: 76.00%
-- **Log-Likelihood**: (To be calculated)
+---
 
-## How to Use
-1. **Clone the Repository**:
-   ```bash
-   git clone https://github.com/Tekleab15/Regularized_Auto_Encoder.git
-   cd Regularized_Auto_Encoder
+## Installation and Requirements
 
+**Requirements:**
+
+- Python 3.x
+- TensorFlow 2.x
+- NumPy
+- scikit-learn
+- Matplotlib
+- (Optional) `tensorflow_datasets`
+
+Install dependencies using pip:
+
+```bash
+pip install tensorflow numpy scikit-learn matplotlib tensorflow-datasets
